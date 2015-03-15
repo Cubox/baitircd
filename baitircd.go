@@ -2,6 +2,7 @@ package main
 
 import "flag"
 import "fmt"
+import "log"
 import "net"
 import "bufio"
 import "strings"
@@ -63,7 +64,7 @@ func (user *User) selfJoin() {
 
 func (user *User) selfMsg() {
     user.send(":%s!%s PRIVMSG %s :%s\n",
-        randS(15, false), randS(30, false), user.nick, randS(200, false))
+        randS(15, false), randS(30, false), user.nick, randS(200, true))
 }
 
 func (user *User) chanJoin(channel *Channel) {
@@ -119,7 +120,7 @@ func (user *User) chanMsg(channel *Channel) {
     nick := channel.c[rand.Intn(len(channel.c))]
 
     user.send(":%s!%s PRIVMSG #%s :%s\n",
-        nick, randS(30, false), channel.name, randS(100, false))
+        nick, randS(30, false), channel.name, randS(100, true))
 }
 
 func (user *User) handle() {
@@ -128,11 +129,11 @@ func (user *User) handle() {
             if _, ok := r.(runtime.Error); ok { // Real panic, above our pay grade
                 panic(r)
             }
-            fmt.Println(r)
+            log.Println(r)
         }
     }()
 
-    fmt.Println("Received connection!")
+    log.Println("Received connection from", user.host, "!")
 
     user.reader = bufio.NewReader(user.conn)
 
@@ -140,25 +141,25 @@ func (user *User) handle() {
         user.conn.SetDeadline(time.Now().Add(time.Minute))
         line, err := user.reader.ReadString('\n')
         if err != nil {
-            fmt.Println(err)
+            log.Println(err)
             user.conn.Close()
             return
         }
 
         if strings.HasPrefix(line, "NICK") {
             user.nick = line[5 : len(line)-1]
-            fmt.Println("Nick is: " + user.nick)
+            log.Println("Nick is: " + user.nick)
         }
     }
 
-    defer fmt.Println("Rip :", user.nick)
+    defer fmt.Println("Rip:", user.nick + "@" + user.host)
 
     go func() {
         for {
             user.conn.SetDeadline(time.Time{})
             line, err := user.reader.ReadString('\n')
             if err != nil {
-                fmt.Println(err)
+                log.Println(err)
                 user.conn.Close()
                 return
             }
@@ -168,7 +169,7 @@ func (user *User) handle() {
 
             } else if strings.HasPrefix(line, "QUIT ") {
                 user.conn.Close()
-                fmt.Println("QUIT")
+                log.Println("QUIT")
                 return
             }
         }
@@ -180,9 +181,9 @@ func (user *User) handle() {
     user.send(":irc.bait.rekt 004 %s :Hi", user.nick)
 
     for {
-        if (rand.Intn(1) == 0 && len(user.channels) < maxChans) {
+        if n := rand.Intn(10); n == 0 && len(user.channels) < maxChans {
             user.selfJoin()
-        } else {
+        } else if n == 1 {
             user.selfMsg()
         }
 
@@ -216,7 +217,7 @@ func main() {
 
     ln, err := net.Listen("tcp", ":" + port)
     if err != nil {
-        panic(err)
+        log.Fatalln(err)
     }
 
     runtime.GOMAXPROCS(runtime.NumCPU())
@@ -224,7 +225,7 @@ func main() {
     for {
         conn, err := ln.Accept()
         if err != nil {
-            fmt.Println(err)
+            log.Println(err)
             continue
         }
 

@@ -1,34 +1,41 @@
 package main
 
-import "flag"
-import "fmt"
-import "log"
-import "net"
-import "bufio"
-import "strings"
-import "runtime"
-import "time"
-import "sync"
-import "math/rand"
+import (
+    "bufio"
+    "flag"
+    "fmt"
+    "log"
+    "math/rand"
+    "net"
+    "runtime"
+    "strings"
+    "sync"
+    "time"
+)
 
-const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890"
-const modes = "vhoaq"
-var maxChans int
-var maxQueries int
-var port string
+const (
+    letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890"
+    modes   = "vhoaq"
+)
+
+var (
+    maxChans   int
+    maxQueries int
+    port       string
+)
 
 type User struct {
     sync.Mutex
-    nick string
-    host string
+    nick     string
+    host     string
     channels []Channel
-    conn net.Conn
-    reader *bufio.Reader
-    sentQ int
+    conn     net.Conn
+    reader   *bufio.Reader
+    sentQ    int
 }
 
 type Channel struct {
-    c []string
+    c    []string
     name string
 }
 
@@ -61,7 +68,7 @@ func randS(length int, spaces bool) string {
 func (u *User) send(message string, args ...interface{}) {
     u.conn.SetWriteDeadline(time.Now().Add(time.Minute))
 
-    _, err := u.conn.Write([]byte(fmt.Sprintf(message + "\n", args...)))
+    _, err := u.conn.Write([]byte(fmt.Sprintf(message+"\n", args...)))
     if err != nil {
         panic(err)
     }
@@ -219,7 +226,7 @@ func (u *User) handle() {
         }
     }
 
-    defer fmt.Println("Rip:", u.nick + "@" + u.host)
+    defer log.Println("Rip: ", u.nick+"@"+u.host)
 
     go func() {
         for {
@@ -262,7 +269,7 @@ func (u *User) handle() {
                     if n := findChannel(u.channels, lineS[1]); n > 0 {
                         u.Lock()
 
-                        if n == len(u.channels) - 1 {
+                        if n == len(u.channels)-1 {
                             u.channels = u.channels[:n]
                         } else {
                             u.channels = append(u.channels[:n], u.channels[n+1:]...)
@@ -343,7 +350,7 @@ func main() {
     flag.StringVar(&port, "p", "8888", "Port to use")
     flag.Parse()
 
-    ln, err := net.Listen("tcp", ":" + port)
+    ln, err := net.Listen("tcp", ":"+port)
     if err != nil {
         log.Fatalln(err)
     }

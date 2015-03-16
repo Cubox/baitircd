@@ -1,0 +1,7 @@
+// TODO: send NAMES when asked?
+// TODO: Force leave user randomly? (rare)
+// TODO: kill user?
+// TODO: kick user?
+// TODO: force change user nick?
+// TODO: user cycles (join/part fast)
+// TODO: can we call writes with go?

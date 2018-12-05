@@ -1,4 +1,6 @@
 # baitircd
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FCubox-%2Fbaitircd.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FCubox-%2Fbaitircd?ref=badge_shield)
+
 
 Small and fast tool to stress-test your irc client
 
@@ -27,3 +29,7 @@ weechat -d /tmp/test # the -d part will make your own irc client not die by spaw
 ```
 
 And now you can pray.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FCubox-%2Fbaitircd.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FCubox-%2Fbaitircd?ref=badge_large)
